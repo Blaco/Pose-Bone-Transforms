@@ -4,7 +4,8 @@ Lightweight Blender addon to quickly setup both proportion deltas and procedural
 *Supports both legacy 2.79 and 2.8+ (all the way up to 4.x), download appropriate version of script*
 
 ## Copy Pose Bone Transforms
-Copies a bone's parent space translation or rotation coordinates to the clipboard for procedural bone setup (also available in [SourceOps](https://github.com/bonjorno7/SourceOps))
+Copies a bone's parent space translation or rotation coordinates to the clipboard for procedural bone setup \
+(also available in [SourceOps](https://github.com/bonjorno7/SourceOps))
 - Select a bone in Pose Mode
 - Pose Context Menu (w) > Copy Parent Translation/Rotation
 
