@@ -9,7 +9,7 @@ Copies a bone's parent space translation or rotation coordinates to the clipboar
 - Select a bone in Pose Mode
 - Pose Context Menu (w) > Copy Parent Translation/Rotation
 
-## Copy Rotation Constraints
+## Copy Rotations From Other Armature
 Transfer rotations of bones with matching names from one armature in the scene to another (for proportions "hack") \
 This is performed by creating Copy Rotation modifiers for each matching bone on the target armature
 - Select the target armature in Pose Mode
