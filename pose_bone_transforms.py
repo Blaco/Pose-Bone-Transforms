@@ -9,6 +9,7 @@ bl_info = {
     "blender": (2, 80, 0),
     "location": "View3D > Pose Context Menu",
     "warning": "",
+    "doc_url": "https://github.com/Blaco/Pose-Bone-Transforms",
     "category": "Animation",
 }
 
