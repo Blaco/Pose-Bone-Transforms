@@ -8,7 +8,7 @@ bl_info = {
     "version": (1, 0),
     "blender": (2, 79, 0),
     "location": "Pose > Pose Specials (W-Key)",
-    "warning": "",
+    "wiki_url": "https://github.com/Blaco/Pose-Bone-Transforms",
     "category": "Animation",
 }
 
