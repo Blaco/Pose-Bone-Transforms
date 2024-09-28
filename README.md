@@ -12,7 +12,7 @@ Copies a bone's parent space translation or rotation coordinates to the clipboar
 3.  Paste from clipboard
 
 ## Copy Transforms From Other Armature
-Transfer transforms of bones with matching names from one armature in the scene to another (for proportions "trick") \
+Transfer transforms of bones with matching names from one armature in the scene to another (for proportions trick) \
 This is performed by creating Copy Rotation/Location/Scale constraints for each bone on the target armature
 
 1.  Select the target armature in Pose Mode
