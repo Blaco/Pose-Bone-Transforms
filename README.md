@@ -11,14 +11,14 @@ Copies a bone's parent space translation or rotation coordinates to the clipboar
 2.  Pose Context Menu (w) > Copy Parent Translation/Rotation
 3.  Paste from clipboard
 
-## Copy Rotations From Other Armature
-Transfer rotations of bones with matching names from one armature in the scene to another (for proportions "hack") \
-This is performed by creating Copy Rotation modifiers for each matching bone on the target armature
+## Copy Transforms From Other Armature
+Transfer rotation, location, or scale of bones with matching names from one armature in the scene to another (for proportions "trick") \
+This is performed by creating Copy Rotation/Location/Scale/Transform modifiers for each matching bone on the target armature
 
 1.  Select the target armature in Pose Mode
 2.  Pose Context Menu (w) > Copy Rotations From Other Armature
 3.  You can change the source armature in the dialogue box that appears on the bottom left of the 3D view
-4.  **Apply Pose as Rest Pose** and **Clear Pose Constraints** to finalize (or just export as an animation)
+4.  Select "Apply as Visual Transform" to directly apply the transform as a pose without creating constraints
 ## Installation
     1. Go to Edit > Preferences
     2. Go to the Add-ons tab
