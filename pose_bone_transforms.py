@@ -5,7 +5,7 @@ bl_info = {
     "name": "Pose Bone Transforms",
     "description": "Get parent space transforms of the active bone (vrd), Copy transforms from other armatures (proportions)",
     "author": "bonjorno7, Taco",
-    "version": (1, 1),
+    "version": (1, 2),
     "blender": (2, 80, 0),
     "location": "View3D > Pose Context Menu",
     "doc_url": "https://github.com/Blaco/Pose-Bone-Transforms",
