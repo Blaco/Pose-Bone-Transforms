@@ -16,7 +16,7 @@ Transfer transforms of bones with matching names from one armature in the scene 
 This is performed by creating Copy Rotation/Location/Scale constraints for each bone on the target armature
 
 1.  Select the target armature in Pose Mode
-2.  Pose Context Menu (w) > Copy Rotations From Other Armature
+2.  Pose Context Menu (w) > Copy Transforms From Other Armature
 3.  You can change the source armature in the dialogue box that appears on the bottom left of the 3D view
 4.  Select "Apply as Visual Transform" to directly apply the transform as a pose without creating constraints
 ## Installation
