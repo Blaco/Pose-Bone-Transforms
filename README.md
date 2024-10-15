@@ -19,6 +19,8 @@ This is performed by creating Copy Rotation/Location/Scale constraints for each 
 2.  Pose Context Menu (w) > Copy Transforms From Other Armature
 3.  You can change the source armature and constraint type in the pop up dialogue box
 4.  Select "Apply as Visual Transform" to directly apply the transform as a pose without creating constraints
+5.  Select "Only Selected" to target only the currently selected bones in Pose Mode
+6.  Select "Clear Previous" to remove existing COPY constraints before applying the transform
 ## Installation
     1. Go to Edit > Preferences
     2. Go to the Add-ons tab
