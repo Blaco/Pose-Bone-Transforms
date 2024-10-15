@@ -5,7 +5,7 @@ bl_info = {
     "name": "Pose Bone Transforms",
     "description": "Get parent space transforms of the active bone (vrd), Copy transforms from other armatures (proportions)",
     "author": "bonjorno7, Taco",
-    "version": (1, 2),
+    "version": (1, 3),
     "blender": (2, 80, 0),
     "location": "View3D > Pose Context Menu",
     "doc_url": "https://github.com/Blaco/Pose-Bone-Transforms",
@@ -52,7 +52,7 @@ class CopyPoseBoneTransforms(bpy.types.Operator):
 
         result_string = ' '.join([str(round(value, 6)) for value in vector])
         context.window_manager.clipboard = result_string
-        self.report({'INFO'}, f"{self.type.capitalize()}: {result_string}")  # Updated to use f-strings
+        self.report({'INFO'}, f"{self.type.capitalize()}: {result_string}")
         return {'FINISHED'}
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 class ApplyCopyTransformsConstraints(bpy.types.Operator):
@@ -90,7 +90,20 @@ class ApplyCopyTransformsConstraints(bpy.types.Operator):
     apply_visual_transform: bpy.props.BoolProperty(
         name="Apply as Visual Transform",
         description="Apply visual transforms to pose and clear created constraints",
-        default=False)
+        default=False
+    )
+
+    only_selected: bpy.props.BoolProperty(
+        name="Only Selected",
+        description="Apply constraints only to the selected bones",
+        default=False
+    )
+
+    clear_previous: bpy.props.BoolProperty(
+        name="Clear Previous",
+        description="Clear existing COPY constraints (rotation/location/scale/transforms) before applying new ones",
+        default=False
+    )
 
     dialog_shown = False
 
@@ -110,8 +123,7 @@ class ApplyCopyTransformsConstraints(bpy.types.Operator):
     def poll(cls, context):
         obj = context.active_object
         # Check if the active object is an armature in Pose mode
-        if obj and obj.type == 'ARMATURE' and obj.mode == 'POSE':
-            return True
+        if obj and obj.type == 'ARMATURE' and obj.mode == 'POSE': return True
         # Check if the active object is a mesh in Weight Paint mode with an associated armature in Pose mode
         if obj and obj.type == 'MESH' and context.mode == 'PAINT_WEIGHT':
             armature = cls.get_target_armature(context)
@@ -127,11 +139,16 @@ class ApplyCopyTransformsConstraints(bpy.types.Operator):
             self.report({'ERROR'}, "No other armatures found in the scene.")
             return {'CANCELLED'}
 
-        self.dialog_shown = True # Set the flag to True when the dialog is shown
+        self.dialog_shown = True
         return context.window_manager.invoke_props_dialog(self)
 
+    def clear_constraints(self, bones, source_armature):
+        for bone in bones:
+            constraints_to_remove = [c for c in bone.constraints if c.type in ['COPY_ROTATION', 'COPY_LOCATION', 'COPY_SCALE', 'COPY_TRANSFORMS'] and c.target == source_armature]
+            for constraint in constraints_to_remove:
+                bone.constraints.remove(constraint)
+
     def execute(self, context):
-        # If the dialog hasn't been shown yet, call invoke first
         if not self.dialog_shown:
             return self.invoke(context, None)
 
@@ -145,42 +162,42 @@ class ApplyCopyTransformsConstraints(bpy.types.Operator):
             return {'CANCELLED'}
 
         source_armature = bpy.data.objects[source_armature_name]
-
-        # List to store tuples of (bone, constraint) for newly created constraints
         created_constraints = []
 
-        # Add the selected constraint to matching bones on the target armature
+        # Get selected bones if "Only Selected" is checked, otherwise get all bones
+        if self.only_selected:
+            target_bones = [bone for bone in target_armature.pose.bones if bone.bone.select]
+        else:
+            target_bones = target_armature.pose.bones
+
+        # Clear previous constraints FIRST if "Clear Previous" is checked
+        if self.clear_previous:
+            self.clear_constraints(target_bones, source_armature)
+
         for bone in source_armature.pose.bones:
-            if bone.name in target_armature.pose.bones:
-                target_bone = target_armature.pose.bones[bone.name]
+            for target_bone in target_bones:
+                if bone.name == target_bone.name:
+                    existing_constraints = [c for c in target_bone.constraints if c.type == self.constraint_type and c.target == source_armature]
+                    for constraint in existing_constraints:
+                        target_bone.constraints.remove(constraint)
 
-                # Remove any pre-existing constraints from the same source armature
-                existing_constraints = [c for c in target_bone.constraints if c.type == self.constraint_type and c.target == source_armature]
-                for constraint in existing_constraints:
-                    target_bone.constraints.remove(constraint)
-
-                # Create new constraint
-                constraint = target_bone.constraints.new(self.constraint_type)
-                constraint.target = source_armature
-                constraint.subtarget = bone.name
-                created_constraints.append((target_bone, constraint))  # Store bone and constraint
+                    constraint = target_bone.constraints.new(self.constraint_type)
+                    constraint.target = source_armature
+                    constraint.subtarget = bone.name
+                    created_constraints.append((target_bone, constraint))  # Store bone and constraint
 
         # Apply visual transforms and remove constraints if the option is enabled
         if self.apply_visual_transform:
-
-            # Apply the visual transforms to all bones on the armature
             bpy.ops.pose.select_all(action='SELECT')
             bpy.ops.pose.visual_transform_apply()
 
-            # Clear the stored constraints created by this operation
-            for bone, constraint in created_constraints:
-                bone.constraints.remove(constraint)
+            # Clear previous constraints after applying the visual transform
+            self.clear_constraints(target_bones, source_armature)
 
             self.report({'INFO'}, "Visual Transform applied, constraints removed.")
         else:
-            self.report({'INFO'}, f"{self.constraint_type.replace('_', ' ').title()} constraints applied.")  # Updated to use f-strings
+            self.report({'INFO'}, f"{self.constraint_type.replace('_', ' ').title()} constraints applied.")
 
-        # Update the scene
         bpy.context.view_layer.update()
         return {'FINISHED'}
 
@@ -189,6 +206,8 @@ class ApplyCopyTransformsConstraints(bpy.types.Operator):
         layout.prop(self, "source_armature", text="Source")
         layout.prop(self, "constraint_type", text="Type")
         layout.prop(self, "apply_visual_transform", text="Apply as Visual Transform")
+        layout.prop(self, "only_selected", text="Only Selected")
+        layout.prop(self, "clear_previous", text="Clear Previous")
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def context_menu_func(self, context):
     self.layout.separator()
@@ -200,12 +219,12 @@ def register():
     bpy.utils.register_class(CopyPoseBoneTransforms)
     bpy.utils.register_class(ApplyCopyTransformsConstraints)
     bpy.types.VIEW3D_MT_pose_context_menu.append(context_menu_func)
-
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 def unregister():
     bpy.utils.unregister_class(CopyPoseBoneTransforms)
     bpy.utils.unregister_class(ApplyCopyTransformsConstraints)
     bpy.types.VIEW3D_MT_pose_context_menu.remove(context_menu_func)
-
+# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 if __name__ == "__main__":
     register()
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
